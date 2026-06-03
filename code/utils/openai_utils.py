@@ -10,6 +10,8 @@ model2max_context = {
     "text-davinci-002": 4096,
 }
 
+DEFAULT_MAX_CONTEXT = 4096
+
 class OutOfQuotaException(Exception):
     "Raised when the key exceeded the current quota"
     def __init__(self, key, cause=None):
@@ -38,7 +40,10 @@ class AccessTerminatedException(Exception):
 
 def num_tokens_from_string(string: str, model_name: str) -> int:
     """Returns the number of tokens in a text string."""
-    encoding = tiktoken.encoding_for_model(model_name)
+    try:
+        encoding = tiktoken.encoding_for_model(model_name)
+    except KeyError:
+        encoding = tiktoken.get_encoding("cl100k_base")
     num_tokens = len(encoding.encode(string))
     return num_tokens
 
